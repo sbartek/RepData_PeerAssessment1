@@ -7,12 +7,15 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r, loadingData, echo=TRUE}
+```{r, loadingData, echo=TRUE, results="asis"}
 require("knitr")
+library('xtable')
 dataDir <- "data"
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip("activity.zip", exdir=dataDir)
 activity.df <- read.csv(paste0(dataDir, "/activity.csv"))
+activty.head <- xtable(head(activity.df))
+print(activty.head, type="html")
 ```
 
 
