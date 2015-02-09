@@ -9,7 +9,8 @@ output:
 ## Loading and preprocessing the data
 ```{r, loadingData, echo=TRUE, results="asis"}
 require("knitr")
-library('xtable')
+require('xtable')
+
 dataDir <- "data"
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip("activity.zip", exdir=dataDir)
@@ -21,14 +22,36 @@ print(activty.head, type="html")
 
 ## What is mean total number of steps taken per day?
 
+We remove rows without steps.
+```{r total_steps_per_day, echo=TRUE}
+require("data.table")
+require("ggplot2")
+activity.dt <- as.data.table(activity.df)
+steps <- activity.dt[!is.na(steps),.(number=sum(steps)),by=date]
+
+mean(steps$number)
+steps.median <- median(steps$number)
+
+steps.gg1 <- ggplot(steps, aes(x=number))
+steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")
+steps.gg2 <- ggplot(steps, aes(x=factor(0),y=number))
+steps.gg2 + geom_boxplot()+coord_flip()
+```
 
 
 ## What is the average daily activity pattern?
 
 
-
+```{r}
+steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE)),by=interval]
+ggplot(steps2, aes(x=interval, y=average)) + geom_line()
+```
 ## Imputing missing values
 
-
+```{r}
+sum(activity.dt[,is.na(steps)])
+sum(activity.dt[,is.na(interval)])
+sum(activity.dt[,is.na(date)])
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?

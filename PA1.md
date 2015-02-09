@@ -10,7 +10,8 @@ output:
 
 ```r
 require("knitr")
-library('xtable')
+require('xtable')
+
 dataDir <- "data"
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip("activity.zip", exdir=dataDir)
@@ -20,7 +21,7 @@ print(activty.head, type="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Feb  9 00:30:35 2015 -->
+<!-- Mon Feb  9 23:53:40 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right">  </td> <td> 2012-10-01 </td> <td align="right">   0 </td> </tr>
@@ -34,14 +35,73 @@ print(activty.head, type="html")
 
 ## What is mean total number of steps taken per day?
 
+We remove rows without steps.
+
+```r
+require("data.table")
+require("ggplot2")
+activity.dt <- as.data.table(activity.df)
+steps <- activity.dt[!is.na(steps),.(number=sum(steps)),by=date]
+
+mean(steps$number)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+steps.median <- median(steps$number)
+
+steps.gg1 <- ggplot(steps, aes(x=number))
+steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")
+```
+
+![plot of chunk total_steps_per_day](figure/total_steps_per_day-1.png) 
+
+```r
+steps.gg2 <- ggplot(steps, aes(x=factor(0),y=number))
+steps.gg2 + geom_boxplot()+coord_flip()
+```
+
+![plot of chunk total_steps_per_day](figure/total_steps_per_day-2.png) 
 
 
 ## What is the average daily activity pattern?
 
 
 
+```r
+steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE)),by=interval]
+ggplot(steps2, aes(x=interval, y=average)) + geom_line()
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png) 
 ## Imputing missing values
 
 
+```r
+sum(activity.dt[,is.na(steps)])
+```
+
+```
+## [1] 2304
+```
+
+```r
+sum(activity.dt[,is.na(interval)])
+```
+
+```
+## [1] 0
+```
+
+```r
+sum(activity.dt[,is.na(date)])
+```
+
+```
+## [1] 0
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
