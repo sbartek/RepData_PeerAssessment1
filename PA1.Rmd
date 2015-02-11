@@ -43,8 +43,20 @@ steps.gg2 + geom_boxplot()+coord_flip()
 
 
 ```{r}
-steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE)),by=interval]
-ggplot(steps2, aes(x=interval, y=average)) + geom_line()
+steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE),median=median(steps, na.rm=TRUE)),by=interval]
+
+
+interval.max <- steps2[which.max(steps2[,average]),interval]
+average.max <- steps2[which.max(steps2[,average]),average]
+
+ggplot(steps2, aes(x=interval, y=average))+geom_line()+
+    geom_vline(xintercept=interval.max, colour="red")+
+        geom_hline(yintercept=average.max, colour="red")
+#geom_line(aes(x=interval, y=median), colour="blue")
+
+ggplot(steps2, aes(x=interval, y=median))+geom_line()
+
+
 ```
 ## Imputing missing values
 
@@ -52,6 +64,18 @@ ggplot(steps2, aes(x=interval, y=average)) + geom_line()
 sum(activity.dt[,is.na(steps)])
 sum(activity.dt[,is.na(interval)])
 sum(activity.dt[,is.na(date)])
+```
+
+In order to clone we wrap by data.table 
+```{r}
+activity.rna <- data.table(activity.dt)
+
+steps.average <- function(int) {
+  steps2[interval == int,average]
+}
+
+activity.rna[,steps := ifelse(is.na(steps), steps.average(interval), steps)]
+
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?

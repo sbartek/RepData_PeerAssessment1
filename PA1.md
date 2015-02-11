@@ -21,7 +21,7 @@ print(activty.head, type="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Feb  9 23:53:40 2015 -->
+<!-- Tue Feb 10 23:27:07 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right">  </td> <td> 2012-10-01 </td> <td align="right">   0 </td> </tr>
@@ -73,7 +73,14 @@ steps.gg2 + geom_boxplot()+coord_flip()
 
 ```r
 steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE)),by=interval]
-ggplot(steps2, aes(x=interval, y=average)) + geom_line()
+
+
+interval.max <- steps2[which.max(steps2[,average]),interval]
+average.max <- steps2[which.max(steps2[,average]),average]
+
+ggplot(steps2, aes(x=interval, y=average))+geom_line()+
+    geom_vline(xintercept=interval.max, colour="red")+
+        geom_hline(yintercept=average.max, colour="red")
 ```
 
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png) 
