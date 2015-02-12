@@ -213,8 +213,12 @@ hr {
 
 <pre><code class="r">require(&quot;knitr&quot;)
 require(&#39;xtable&#39;)
+</code></pre>
 
-dataDir &lt;- &quot;data&quot;
+<pre><code>## Loading required package: xtable
+</code></pre>
+
+<pre><code class="r">dataDir &lt;- &quot;data&quot;
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip(&quot;activity.zip&quot;, exdir=dataDir)
 activity.df &lt;- read.csv(paste0(dataDir, &quot;/activity.csv&quot;))
@@ -224,7 +228,7 @@ print(activty.head, type=&quot;html&quot;)
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
 
-<!-- Thu Feb 12 23:45:11 2015 -->
+<!-- Thu Feb 12 23:48:04 2015 -->
 
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
@@ -241,8 +245,20 @@ print(activty.head, type=&quot;html&quot;)
 <p>We remove rows without steps.</p>
 
 <pre><code class="r">require(&quot;data.table&quot;)
-require(&quot;ggplot2&quot;)
-activity.dt &lt;- as.data.table(activity.df)
+</code></pre>
+
+<pre><code>## Loading required package: data.table
+## data.table 1.9.4  For help type: ?data.table
+## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+</code></pre>
+
+<pre><code class="r">require(&quot;ggplot2&quot;)
+</code></pre>
+
+<pre><code>## Loading required package: ggplot2
+</code></pre>
+
+<pre><code class="r">activity.dt &lt;- as.data.table(activity.df)
 steps &lt;- activity.dt[!is.na(steps),.(number=sum(steps)),by=date]
 
 mean(steps$number)

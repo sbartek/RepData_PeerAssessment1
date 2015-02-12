@@ -21,7 +21,13 @@ Sys.setlocale("LC_TIME", 'en_US.UTF-8')
 ```r
 require("knitr")
 require('xtable')
+```
 
+```
+## Loading required package: xtable
+```
+
+```r
 dataDir <- "data"
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip("activity.zip", exdir=dataDir)
@@ -31,7 +37,7 @@ print(activty.head, type="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Thu Feb 12 23:45:11 2015 -->
+<!-- Thu Feb 12 23:48:04 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right">  </td> <td> 2012-10-01 </td> <td align="right">   0 </td> </tr>
@@ -49,7 +55,23 @@ We remove rows without steps.
 
 ```r
 require("data.table")
+```
+
+```
+## Loading required package: data.table
+## data.table 1.9.4  For help type: ?data.table
+## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+```
+
+```r
 require("ggplot2")
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
 activity.dt <- as.data.table(activity.df)
 steps <- activity.dt[!is.na(steps),.(number=sum(steps)),by=date]
 
