@@ -5,17 +5,26 @@ output:
     keep_md: true
 ---
 
+Reproducible Research: Peer Assessment 1
+========================================
 
-Date format:
-```{r}
+First we load all packages needed:
+```{r, loadingPackages, echo=TRUE, results="asis"}
+require("knitr")
+require('xtable')
+require("data.table")
+require("ggplot2")
+```
+
+Next we assure that date format in English. Probably it is Linux
+specific, so if you run it on Windows it could not work.
+```{r, setlocale, echo=TRUE, results="asis" }
 Sys.setlocale("LC_TIME", 'en_US.UTF-8')
 ```
 
 ## Loading and preprocessing the data
-```{r, loadingData, echo=TRUE, results="asis"}
-require("knitr")
-require('xtable')
 
+```{r, loadingData, echo=TRUE, results="asis"}
 dataDir <- "data"
 if (!file.exists(dataDir)) {dir.create(dataDir)}
 unzip("activity.zip", exdir=dataDir)
@@ -27,25 +36,34 @@ print(activty.head, type="html")
 
 ## What is mean total number of steps taken per day?
 
-We remove rows without steps.
-```{r total_steps_per_day, echo=TRUE}
-require("data.table")
-require("ggplot2")
+### Head of the table with total number of steps per day (we have removed rows with NA).
+```{r total_steps_per_day, echo=TRUE, results="asis"}
 activity.dt <- as.data.table(activity.df)
 steps <- activity.dt[!is.na(steps),.(number=sum(steps)),by=date]
+print(xtable(head(steps)), type="html")
+```
 
-mean(steps$number)
-steps.median <- median(steps$number)
-
+### Histogram of the total number of steps taken each day.
+```{r histograma, echo=TRUE}
 steps.gg1 <- ggplot(steps, aes(x=number))
 steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")
 steps.gg2 <- ggplot(steps, aes(x=factor(0),y=number))
 steps.gg2 + geom_boxplot()+coord_flip()
 ```
 
+### Mean and median of the total number of steps taken per day.
+```{r mean_median, echo=TRUE}
+steps.mean <- mean(steps$number)
+steps.median <- median(steps$number)
+```
+Mean is `r sprintf("%.2f", steps.mean)` and median `r steps.median`.
+
 
 ## What is the average daily activity pattern?
 
+### Time series plot
+
+Plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 ```{r}
 steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE),median=median(steps, na.rm=TRUE)),by=interval]
@@ -57,23 +75,28 @@ average.max <- steps2[which.max(steps2[,average]),average]
 ggplot(steps2, aes(x=interval, y=average))+geom_line()+
     geom_vline(xintercept=interval.max, colour="red")+
         geom_hline(yintercept=average.max, colour="red")
-#geom_line(aes(x=interval, y=median), colour="blue")
-
-ggplot(steps2, aes(x=interval, y=median))+geom_line()
 
 
 ```
+
+### 5-minute interval that contains the maximum number of steps
+
+`r interval.max`
+
 ## Imputing missing values
 
+### Total number of missing values in the dataset
 ```{r}
 sum(activity.dt[,is.na(steps)])
-sum(activity.dt[,is.na(interval)])
-sum(activity.dt[,is.na(date)])
 ```
 
-In order to clone we wrap by data.table
+### Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+We use **mean for 5-minute interval** for filling in all of the missing values in the dataset.
+
 
 ```{r}
+#In order to clone we wrap by data.table
 activity.nona <- data.table(activity.dt)
 
 steps.average <- function(int) {
@@ -83,21 +106,38 @@ steps.average <- function(int) {
 activity.nona[,steps := ifelse(is.na(steps), steps.average(interval), steps)]
 steps.total.per.day <- activity.dt[,.(total=sum(steps, na.rm=TRUE)), by=date]
 steps.total.per.day.nona <- activity.nona[,.(total=sum(steps)), by=date]
-ggplot(steps.total.per.day)+geom_histogram(aes(x=total),binwidth=1000)
+```
+
+### Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
+
+```{r}
+ggplot(steps.total.per.day.nona)+geom_histogram(aes(x=total),binwidth=1000)
 #qplot(total, data=steps.total.per.day, binwidth=1000)
-ggplot(steps.total.per.day)+
-    geom_line(aes(as.Date(date),steps.total.per.day.nona$total), color="blue")+
-        geom_line(aes(as.Date(date), total), color="red")
 
 steps.average.per.day <- activity.nona[,.(average=mean(steps)), by=date]
 steps.median.per.day <- activity.nona[,.(median=median(steps)), by=date]
+steps.mean.nona <- mean(steps.total.per.day.nona$total)
+steps.median.nona <- median(steps.total.per.day.nona$total)
+```
 
 
 
+After filling in NA , mean is `r sprintf("%.2f",steps.mean.nona)`
+and median is `r sprintf("%.2f",steps.median.nona)`.
+Before mean wss `r sprintf("%.2f", steps.mean)` and median `r steps.median`.
+
+### Impact of imputing missing data
+
+```{r}
+ggplot(steps.total.per.day)+
+    geom_line(aes(as.Date(date),steps.total.per.day.nona$total), color="blue")+
+        geom_line(aes(as.Date(date), total), color="red")
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+
+### Panel plot containing time series plots
 ```{r}
 activity.nona[,day:=as.factor(
                    ifelse(
