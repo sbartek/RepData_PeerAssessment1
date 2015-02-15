@@ -17,7 +17,7 @@ require("data.table")
 require("ggplot2")
 ```
 
-Next we assure that date format in English. Probably it is Linux
+Next we assure that date format is in English. It is Linux
 specific, so if you run it on Windows it could not work.
 
 ```r
@@ -39,7 +39,7 @@ print(activty.head, type="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sat Feb 14 00:11:54 2015 -->
+<!-- Sun Feb 15 22:36:32 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right">  </td> <td> 2012-10-01 </td> <td align="right">   0 </td> </tr>
@@ -62,7 +62,7 @@ print(xtable(head(steps)), type="html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sat Feb 14 00:11:54 2015 -->
+<!-- Sun Feb 15 22:36:32 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> date </th> <th> number </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> 2012-10-02 </td> <td align="right"> 126 </td> </tr>
@@ -76,8 +76,11 @@ print(xtable(head(steps)), type="html")
 ### Histogram of the total number of steps taken each day.
 
 ```r
+steps.mean <- mean(steps$number)
+steps.median <- median(steps$number)
+
 steps.gg1 <- ggplot(steps, aes(x=number))
-steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")
+steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")  
 ```
 
 ![plot of chunk histograma](figure/histograma-1.png) 
@@ -92,8 +95,19 @@ steps.gg2 + geom_boxplot()+coord_flip()
 ### Mean and median of the total number of steps taken per day.
 
 ```r
-steps.mean <- mean(steps$number)
-steps.median <- median(steps$number)
+steps.mean
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+steps.median
+```
+
+```
+## [1] 10765
 ```
 Mean is 10766.19 and median 10765.
 
@@ -108,12 +122,11 @@ Plot of the 5-minute interval (x-axis) and the average number of steps taken, av
 ```r
 steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE),median=median(steps, na.rm=TRUE)),by=interval]
 
-
 interval.max <- steps2[which.max(steps2[,average]),interval]
 average.max <- steps2[which.max(steps2[,average]),average]
 
-ggplot(steps2, aes(x=interval, y=average))+geom_line()+
-    geom_vline(xintercept=interval.max, colour="red")+
+ggplot(steps2, aes(x=interval, y=average))+geom_line(colour="black")+
+    geom_vline(xintercept=interval.max, colour="blue")+
         geom_hline(yintercept=average.max, colour="red")
 ```
 
@@ -200,9 +213,11 @@ Before mean wss 10766.19 and median 10765.
 
 
 ```r
-ggplot(steps.total.per.day)+
-    geom_line(aes(as.Date(date),steps.total.per.day.nona$total), color="blue")+
-        geom_line(aes(as.Date(date), total), color="red")
+ggplot()+ geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=steps.total.per.day.nona$total,color='blue'), alpha=0.4, size=1)+
+    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=total,color='red'), alpha=0.4, size=0.8)+
+    xlab('Date')+ylab('Steps per day') + 
+    scale_colour_manual(name = '', 
+         values =c('blue'='blue','red'='red'), labels = c('NA removed','with NA'))
 ```
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 

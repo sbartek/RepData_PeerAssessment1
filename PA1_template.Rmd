@@ -16,7 +16,7 @@ require("data.table")
 require("ggplot2")
 ```
 
-Next we assure that date format in English. Probably it is Linux
+Next we assure that date format is in English. It is Linux
 specific, so if you run it on Windows it could not work.
 ```{r, setlocale, echo=TRUE, results="asis" }
 Sys.setlocale("LC_TIME", 'en_US.UTF-8')
@@ -74,8 +74,8 @@ steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE),median=median(steps, na
 interval.max <- steps2[which.max(steps2[,average]),interval]
 average.max <- steps2[which.max(steps2[,average]),average]
 
-ggplot(steps2, aes(x=interval, y=average))+geom_line()+
-    geom_vline(xintercept=interval.max, colour="red")+
+ggplot(steps2, aes(x=interval, y=average))+geom_line(colour="black")+
+    geom_vline(xintercept=interval.max, colour="blue")+
         geom_hline(yintercept=average.max, colour="red")
 ```
 
@@ -129,12 +129,11 @@ Before mean wss `r sprintf("%.2f", steps.mean)` and median `r steps.median`.
 ### Impact of imputing missing data
 
 ```{r}
-ggplot()+
-    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=steps.total.per.day.nona$total,color='black'))+
-    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=total,color='red'))+
+ggplot()+ geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=steps.total.per.day.nona$total,color='blue'), alpha=0.4, size=1)+
+    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=total,color='red'), alpha=0.4, size=0.8)+
     xlab('Date')+ylab('Steps per day') + 
     scale_colour_manual(name = '', 
-         values =c('black'='black','red'='red'), labels = c('NA removed','with NA'))
+         values =c('blue'='blue','red'='red'), labels = c('NA removed','with NA'))
 
 ```
 
