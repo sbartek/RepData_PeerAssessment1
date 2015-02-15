@@ -45,16 +45,19 @@ print(xtable(head(steps)), type="html")
 
 ### Histogram of the total number of steps taken each day.
 ```{r histograma, echo=TRUE}
+steps.mean <- mean(steps$number)
+steps.median <- median(steps$number)
+
 steps.gg1 <- ggplot(steps, aes(x=number))
-steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")
+steps.gg1+geom_histogram(binwidth = 850) + geom_vline(xintercept = steps.median, colour = "red")  
 steps.gg2 <- ggplot(steps, aes(x=factor(0),y=number))
 steps.gg2 + geom_boxplot()+coord_flip()
 ```
 
 ### Mean and median of the total number of steps taken per day.
 ```{r mean_median, echo=TRUE}
-steps.mean <- mean(steps$number)
-steps.median <- median(steps$number)
+steps.mean
+steps.median
 ```
 Mean is `r sprintf("%.2f", steps.mean)` and median `r steps.median`.
 
@@ -68,15 +71,12 @@ Plot of the 5-minute interval (x-axis) and the average number of steps taken, av
 ```{r}
 steps2 <- activity.dt[,.(average=mean(steps, na.rm=TRUE),median=median(steps, na.rm=TRUE)),by=interval]
 
-
 interval.max <- steps2[which.max(steps2[,average]),interval]
 average.max <- steps2[which.max(steps2[,average]),average]
 
 ggplot(steps2, aes(x=interval, y=average))+geom_line()+
     geom_vline(xintercept=interval.max, colour="red")+
         geom_hline(yintercept=average.max, colour="red")
-
-
 ```
 
 ### 5-minute interval that contains the maximum number of steps
@@ -129,9 +129,13 @@ Before mean wss `r sprintf("%.2f", steps.mean)` and median `r steps.median`.
 ### Impact of imputing missing data
 
 ```{r}
-ggplot(steps.total.per.day)+
-    geom_line(aes(as.Date(date),steps.total.per.day.nona$total), color="blue")+
-        geom_line(aes(as.Date(date), total), color="red")
+ggplot()+
+    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=steps.total.per.day.nona$total,color='black'))+
+    geom_line(data=steps.total.per.day,aes(x=as.Date(date),y=total,color='red'))+
+    xlab('Date')+ylab('Steps per day') + 
+    scale_colour_manual(name = '', 
+         values =c('black'='black','red'='red'), labels = c('NA removed','with NA'))
+
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
